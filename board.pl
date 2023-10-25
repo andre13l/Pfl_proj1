@@ -1,3 +1,4 @@
+:- consult('logic.pl').
 % initial(+Identifier, -Board)
 % Initial board 
 initial_state([
@@ -7,29 +8,24 @@ initial_state([
   [0,0,0,0,0],
   [0,0,0,0,0],
   [0,0,0,0,0],
-  [1,1,1,1,1]
+  [2,2,2,2,2]
 ]).
 
-% opposed_opponent_code(+PlayerS, -Code)
-% Code takes opposed player code
-opposed_opponent_code(PlayerS, Code):-
-  player_piece(PlayerS, Piece),
-  Code is -Piece.
-
-% opposed_opponent_string(+PlayerS, -EnemyS)
-% EnemyS returns the string of the enemy of PlayerS
-opposed_opponent_string(PlayerS, EnemyS):-
-  opposed_opponent_code(PlayerS, Code),
-  player_piece(EnemyS, Code).
-
 % Pieces codes for board representation
-code(0, 32).   % ascii code for space
-code(1, 216). % Ø - Player 2
-code(b, 215).  % × - Player 1
+code(0, 32). % ascii code for space
+code(1, 65). % A - Player 1 stack 1
+code(2, 66). % B - Player 1 stack 2
+code(3, 67). % C - Player 1 stack 3
+code(4, 68). % D - Player 1 stack 4
+code(a, 97). % a - Player 2 stack 1
+code(b, 98). % b - Player 2 stack 2
+code(c, 99). % c - Player 2 stack 3
+code(d, 100). % d - Player 2 stack 4
 
 % Pieces codes for each player
 player_piece('Player 1', 1).
 player_piece('Player 2', 0).
+
 
 % Switch player
 player_swap('Player 1', 'Player 2').
@@ -95,34 +91,6 @@ display :-
   display_game(Board),
   read(X),
   read(Y),
-  move(Board, X-Y, nX-nY).
+  move(Board, X, Y, 4, NewBoard),
+  display_game(NewBoard).
 
-% get_piece(+Board, +X-Y, -Piece)
-get_piece(Board, X-Y, Piece) :-
-  nth0(Y, Board, Line),
-  nth0(X, Line, Piece).
-
-% set_piece(+Board, +X-Y, +Piece, -NewBoard)
-set_piece(Board, X-Y, Piece, NewBoard) :-
-  nth0(Y, Board, Line),
-  replace(Line, X, Piece, NewLine),
-  replace(Board, Y, NewLine, NewBoard).
-
-% Move a piece from one position to another
-move(Board, X-Y, nX-nY) :-
-  get_piece(Board, X-Y, Piece),
-  set_piece(Board, X-Y, 0, NewBoard),
-  set_piece(NewBoard, nX-nY, Piece, NewBoard2),
-  display_game(NewBoard2).
-  
-% Check if a move is valid
-valid_move(Board, Player, X-Y, nX-nY) :-
-  get_piece(Board, X-Y, Piece),
-  Piece \= 0,
-  get_piece(Board, nX-nY, 0),
-  player_piece(Player, Piece),
-  valid_direction(X-Y, nX-nY).
-
-% List of valid moves
-valid_moves(Board, Player, ListOfMoves) :-
-  findall(X-Y-nX-nY, valid_move(Board, Player, X-Y, nX-nY), ListOfMoves).
