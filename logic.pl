@@ -30,11 +30,10 @@ player_piece('Player 2', 0).
 player_swap('Player 1', 'Player 2').
 player_swap('Player 2', 'Player 1').
 
-
-print_board_middle_separator(1):-
-  write('|\n').
-print_board_middle_separator(X):-
-  write('+ - '), X1 is X-1, print_board_middle_separator(X1).
+print_board_middle_separator(1):- write('|\n').
+print_board_middle_separator(X):- write('+ - '), 
+                                  X1 is X-1, 
+                                  print_board_middle_separator(X1).
 
 % When the counter reaches 0, it ends
 print_matrix([], 8, _).
