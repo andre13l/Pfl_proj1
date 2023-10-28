@@ -86,11 +86,6 @@ display_game(Board):-
   print_matrix(Board, 0, 7),
   write('         ').
 
-display :-
+start :-
   initial_state(Board),
-  display_game(Board),
-  read(X),
-  read(Y),
-  move(Board, X, Y, 4, NewBoard),
-  display_game(NewBoard).
-
+  display_game(Board).
