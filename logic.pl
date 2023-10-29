@@ -4,7 +4,7 @@ initial_state([
   [b,b,b,b,b],
   [0,0,0,0,0],
   [0,0,0,0,0],
-  [0,0,b,0,0],
+  [0,0,0,0,0],
   [0,0,0,0,0],
   [0,0,0,0,0],
   [2,2,2,2,2]
@@ -22,8 +22,7 @@ valid_move(Board, X, Y, NX, NY) :-
   
 % get the list of possible moves
 moves_list(Board, X, Y, ListOfMoves) :-
-  findall([NX, NY], valid_move(Board, X, Y, NX, NY), ListOfMoves),
-  write(ListOfMoves).
+  findall([NX, NY], valid_move(Board, X, Y, NX, NY), ListOfMoves).
 
 % Pieces codes for board representation
 code(0, 32). % ascii code for space
@@ -157,18 +156,25 @@ replace(Board, X, Y, Value, NewBoard) :-
 move(Board, X, Y, A, NewBoard) :-
     replace(Board, X, Y, A, NewBoard).
 
+% show a numbered list of possible moves
+show_moves([], _).
+show_moves([S|Rest], N):-
+  write(N), write(S), nl,
+  N1 is N + 1,
+  show_moves(Rest, N1),!.
+
 % Make a move
 make_move('Player', GameState, PlayerS, NewGameState) :-
   Player = 'Player', format('~n~`*t ~a turn ~`*t~57|~n', [PlayerS]), 
   write('Choose a piece to move: '), nl,
   choose_piece(GameState, X, Y),
   value_in_board(GameState, X, Y, Value),
-  moves_list(GameState, X, Y, ListOfMoves),
   write('- Selected piece: '), write(Value), nl,
+  moves_list(GameState, X, Y, ListOfMoves),
+  show_moves(ListOfMoves, 1),
   write('Choose a spot to move: '), nl,
   read_input(X1, Y1),
   value_in_board(GameState, X1, Y1, Value1),
-  X1 \= X, Y1 \= Y,
   format('- Selected spot: X: ~d, Y: ~w \n', [X1,Y1]),
   sleep(2),
   move(GameState, X1, Y1, Value, NewGame),
