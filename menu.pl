@@ -3,6 +3,7 @@
 :-use_module(library(lists)).
 :-use_module(library(system)).
 :-use_module(library(random)).
+:-use_module(library(between)).
 
 % clear/0
 % Clears the screen, for better user experience (UX)
