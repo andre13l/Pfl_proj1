@@ -10,8 +10,9 @@ code_number(55, 7).
 code_number(56, 8).
 code_number(57, 9).
 
+
 % read_number(+LowerBound, +UpperBound, -Number)
-% used in menus to read inputs between the Lower and Upper Bounds
+% used to read inputs between the Lower and Upper Bounds
 read_number(LowerBound, UpperBound, Number):-
   get_code(NumberASCII),
   peek_char(Char),
