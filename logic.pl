@@ -208,6 +208,9 @@ can_attack(Board, X, Y, NX, NY) :-
 attack_list(Board, X, Y, ListOfMoves) :-
   findall([NX, NY], can_attack(Board, X, Y, NX, NY), ListOfMoves).
 
+# ta a dar merda no reduce_stack
+# é preciso escolher para que lado vai, eliminar a stack e definir quantas peças vao de sopa
+
 reduce_stack(GameState, X, Y, NewGameState) :-
   value_in_board(GameState, X, Y, Value),
   player_piece(Player, Value, Z),
