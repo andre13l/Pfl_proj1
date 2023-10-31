@@ -10,20 +10,6 @@ initial_state([
   [2,2,2,2,2]
 ]).
 
-% valid_move(+Board, +X, +Y, +NX, +NY)
-% checks if the move is valid
-valid_move(Board, X, Y, NX, NY) :-
-  value_in_board(Board, X, Y, Value),
-  player_piece(_, Value, Z),
-  Xma is X + Z, Xmi is X - Z, Yma is Y + Z, Ymi is Y - Z,
-  between(Xmi, Xma, NX), between(Ymi, Yma, NY),
-  value_in_board(Board, NX, NY, Value2),
-  Value2 == 0.
-  
-% get the list of possible moves
-moves_list(Board, X, Y, ListOfMoves) :-
-  findall([NX, NY], valid_move(Board, X, Y, NX, NY), ListOfMoves).
-
 % Pieces codes for board representation
 code(0, 32). % ascii code for space
 code(a, 97). % a - Player 1 stack 1
@@ -144,7 +130,7 @@ choose_piece(Board, X, Y, Player) :-
     value_in_board(Board, X, Y, Value),
     player_piece(Player, Value, _).    
 
-choose_piece(Board, X, Y, _) :-
+choose_piece(Board, X, Y, Player) :-
     write('Invalid choice!'), nl,
     choose_piece(Board, X, Y, Player).
 
@@ -168,24 +154,27 @@ show_moves([], _, _).
 show_moves([S|Rest], N, R):-
   write(N), write(S), nl,
   N1 is N + 1,
-  show_moves(Rest, N1, R),!.
+  show_moves(Rest, N1, R).
 
-% attack(+Board, +X, +Y, +NX, +NY, -NewBoard)
-% performs an attack
-attack(Board, X, Y, NX, NY, NewBoard, 1) :-
+% valid_move(+Board, +X, +Y, +NX, +NY)
+% checks if the move is valid
+valid_move(Board, X, Y, NX, NY) :-
   value_in_board(Board, X, Y, Value),
+  player_piece(_, Value, Z),
+  Xma is X + Z, Xmi is X - Z, Yma is Y + Z, Ymi is Y - Z,
+  between(Xmi, Xma, NX), between(Ymi, Yma, NY),
   value_in_board(Board, NX, NY, Value2),
-  player_piece(Player, Value, _),
-  player_piece(Player, Value2, _),
-  NewValue is Value + Value2,
-  move(Board, NX, NY, 0, NewBoard1),
-  move(NewBoard1, X, Y, NewValue, NewBoard).
-
-attack(Board, X, Y, NX, NY, NewBoard, 2).
-
+  Value2 == 0.
+  
+% get the list of possible moves
+moves_list(Board, X, Y, ListOfMoves) :-
+  findall([NX, NY], valid_move(Board, X, Y, NX, NY), ListOfMoves).
 % Make a move
 make_move('Player', GameState, PlayerS, NewGameState) :-
-  Player = 'Player', format('~n~`*t ~a turn ~`*t~57|~n', [PlayerS]), 
+  format('~n~`*t ~a turn ~`*t~57|~n', [PlayerS]), 
+  write('Attack or Move? (1 - Attack, 2 - Move): '), nl,
+  read_number(1, 2, Choice),
+  Choice == 2,
   write('Choose a piece to move: '), nl,
   choose_piece(GameState, X, Y, PlayerS),
   value_in_board(GameState, X, Y, Value),
@@ -193,17 +182,65 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
   % read_input(NX, NY),
   % attack(GameState, X, Y, NX, NY, NewGameState, 1),
   moves_list(GameState, X, Y, ListOfMoves),
+  write('Possible moves:'), nl, 
   show_moves(ListOfMoves, 1, R),
   length(ListOfMoves, R),
   write('Choose a possible move: '), nl,
   read_number(1, R, N),
   nth1(N, ListOfMoves, [X1, Y1]),
-
   value_in_board(GameState, X1, Y1, Value1),
   format('- Selected spot: X: ~d, Y: ~w \n', [X1,Y1]),
   sleep(2),
   move(GameState, X1, Y1, Value, NewGame),
   move(NewGame, X, Y, Value1, NewGameState).
+
+can_attack(Board, X, Y, NX, NY) :-
+  value_in_board(Board, X, Y, Value),
+  player_piece(_, Value, Z),
+  Xma is X + Z, Xmi is X - Z, Yma is Y + Z, Ymi is Y - Z,
+  between(Xmi, Xma, NX), between(Ymi, Yma, NY),
+  value_in_board(Board, NX, NY, Value2),
+  player_piece(Player, Value, _),
+  player_piece(Player1, Value2, _),
+  Player \= Player1,
+  Value2 \= 0.
+
+attack_list(Board, X, Y, ListOfMoves) :-
+  findall([NX, NY], can_attack(Board, X, Y, NX, NY), ListOfMoves).
+
+reduce_stack(GameState, X, Y, NewGameState) :-
+  value_in_board(GameState, X, Y, Value),
+  player_piece(Player, Value, Z),
+  NewZ is Z + 1,
+  player_piece(Player, NewValue, NewZ),
+  replace(GameState, X, Y, NewValue, NewGameState).
+
+attack(GameState, X, Y, X1, Y1, NewGameState):-
+  reduce_stack(GameState, X1, Y1, NewGameState1),
+  value_in_board(NewGameState1, X1, Y1, Value),
+  Y2 is Y1 + 1,
+  move(NewGameState1, X1, Y2, Value, NewGameState2).
+
+make_move('Player', GameState, PlayerS, NewGameState) :-
+  write('Choose a piece to attack with: '), nl,
+  choose_piece(GameState, X, Y, PlayerS),
+  value_in_board(GameState, X, Y, Value),
+  write('- Selected piece: '), write(Value), nl,
+  attack_list(GameState, X, Y, ListOfMoves),
+  write('Possible attacks:'), nl,
+  show_moves(ListOfMoves, 1, R),
+  length(ListOfMoves, R),
+  write('Choose a possible attack: '), nl,
+  read_number(1, R, N),
+  nth1(N, ListOfMoves, [X1, Y1]),
+  format('- Selected spot: X: ~d, Y: ~w \n', [X1,Y1]),
+  sleep(2),
+  reduce_stack(GameState, X1, Y1, NewGameState1),
+  value_in_board(GameState1, X1, Y1, Value1),
+  Y2 is Y1 + 1,
+  move(NewGameState1, X1, Y2, Value1, NewGameState2),
+  move(NewGameState2, X, Y, 0, NewGameState3),
+  move(NewGameState3, X1, Y1, Value, NewGameState).
 
 % Turn for moving a piece
 turn(GameState, Player, PlayerS, NextPlayer):-
