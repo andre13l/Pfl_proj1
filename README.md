@@ -18,7 +18,7 @@ Your pieces can be in stacks of 1, 2, 3 or 4, whether on the grid, or in the hom
 
 Pieces / stacks of pieces can move in any direction across the grid, moving from one square to an adjacent one, horizontally (left and right), vertically (up and down), or diagonally (combining directions), up to their movement allowance.<br>
 `A new stack can be created by moving one or more pieces into a square that is already occupied by a friendly piece / stack, but when that happens, it must stop its movement.`<br>
-One or more pieces can also be moved from an existing stack.<br>
+`One or more pieces can also be moved from an existing stack.`<br>
 >Hint:<br>
 During your move, you may also attack the opponent’s pieces and eliminate some or all of them by moving your pieces / stacks into squares occupied by the opponent.
 
@@ -28,7 +28,7 @@ Movement allowance depends on the stack's size:
 
 - Stack of 1 -> 3 spaces<br>
 - Stack of 2 -> 2 spaces<br>
-- Stack of 3 -> 1 spaces<br>
+- Stack of 3 -> 1 space<br>
 - Stack of 4 -> cannot move<br>
 - Instead, a player can move 2 individual pieces up to 2 spaces each
 
@@ -85,6 +85,7 @@ The attacking pieces move into the space vacated by
 the opponent pieces.
 
 ### 5. Eliminated Pieces
+
 Eliminated pieces are placed to the side of the board. They are never returned to the game.
 
 ### 6. Home Spaces
