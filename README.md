@@ -2,6 +2,10 @@
 
 This is a 1 vs 1 board game. <br>
 Each player has 10 pieces (either in red or black), who can be combined in stacks, with up to 4 pieces per stack. At the beginning of the game, all pieces are combined in stacks of 2.<br>
+The winner is the one that can place 4 or more of his own pieces into one or more of the opponent's homespaces, or eliminate 6 or more opponent's pieces.
+
+## Board dimensions
+
 The board dimensions are 5x5 with 5 extra homespaces at each side, in which the pieces start the game from.
 
 ## Rules
@@ -102,6 +106,3 @@ more of your pieces, your other pieces can move into that homespace later in the
 No more than 4 pieces are allowed to occupy a homespace.<br>
 All the rules of movement and stacking set out in rules [2] and [3]  apply to homespaces.
 
-## Winning
-
-The winner is the one that can place 4 or more of his own pieces into one or more of the opponent's homespaces, or eliminate 6 or more opponent's pieces.
