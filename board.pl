@@ -1,4 +1,3 @@
-:- consult('logic.pl').
 % initial(+Identifier, -Board)
 % Initial board 
 initial_state([
@@ -10,27 +9,6 @@ initial_state([
   [0,0,0,0,0],
   [2,2,2,2,2]
 ]).
-
-% Pieces codes for board representation
-code(0, 32). % ascii code for space
-code(1, 65). % A - Player 1 stack 1
-code(2, 66). % B - Player 1 stack 2
-code(3, 67). % C - Player 1 stack 3
-code(4, 68). % D - Player 1 stack 4
-code(a, 97). % a - Player 2 stack 1
-code(b, 98). % b - Player 2 stack 2
-code(c, 99). % c - Player 2 stack 3
-code(d, 100). % d - Player 2 stack 4
-
-% Pieces codes for each player
-player_piece('Player 1', 1).
-player_piece('Player 2', 0).
-
-
-% Switch player
-player_swap('Player 1', 'Player 2').
-player_swap('Player 2', 'Player 1').
-
 
 print_board_middle_separator(1):-
   write('|\n').
