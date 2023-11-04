@@ -21,7 +21,6 @@ code(2, 66). % B - Player 2 stack 2
 code(3, 67). % C - Player 2 stack 3
 code(4, 68). % D - Player 2 stack 4
 */
-
 /*
 player_piece('Player 1', 1).
 player_piece('Player 2', 0).
