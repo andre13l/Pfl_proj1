@@ -193,7 +193,7 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
   Y2 is Y1 + 1,
   EliminatedPieces is Value - Value1,
   NewVictimValue is Value1 - EliminatedPieces,
-  move(NewGameState1, X1, Y2, NewVictimValue, NewGameState2),       % v0000000000000000ictim retreats one place (ex: goes to [X1, Y2]), but we still need to choose the direction
+  move(NewGameState1, X1, Y2, NewVictimValue, NewGameState2),       % victim retreats one place (ex: goes to [X1, Y2]), but we still need to choose the direction
   move(NewGameState2, X, Y, 0, NewGameState3),                      % empty the place where the attacker was [X, Y]
   move(NewGameState3, X1, Y1, Value, NewGameState).                 % the place where the victim was [X1, Y1] will have now the attacker piece (Value)
 
