@@ -1,5 +1,4 @@
 :- consult('board.pl').
-:- use_module(library(random)).
 
 % Pieces codes for board representation
 code(0, 32). % ascii code for space
@@ -41,8 +40,24 @@ player_piece('Player 1', d, 0).
 player_swap('Player 1', 'Player 2').
 player_swap('Player 2', 'Player 1').
 
+% read_column(-Column)
+% predicate to read column from user
+read_column(Column) :-
+  write('| Column (0-4) - '),
+  read_number(0, 4, Column).
+
+% read_row(-Row)
+% predicate to read row from user
+read_row(Row) :-
+  write('| Row (0-6) - '),
+  read_number(0, 6, Row).
+
+% Reads a Column and Row 
+read_input(X, Y) :-
+    read_row(Y),
+    read_column(X).
+
 % Return the value at the given position
-% Value will store the value in [X, Y]
 value_in_board(Board, X, Y, Value) :-
     nth0(Y, Board, Line),
     nth0(X, Line, Value).
@@ -60,8 +75,7 @@ player_in_board(Board, X, Y, PlayerS):-
 
 % Predicate to read input, checks if is available and return 
 choose_piece(Board, X, Y, Player) :-
-    random(0, 4, X),
-    random(0, 6, Y),
+    read_input(X, Y),
     value_in_board(Board, X, Y, Value),
     player_piece(Player, Value, _).    
 
@@ -82,7 +96,7 @@ replace(Board, X, Y, Value, NewBoard) :-
 
 % performs the change in the board, replaces current piece with 0 and empty space with player code
 move(Board, X, Y, A, NewBoard) :-
-  replace(Board, X, Y, A, NewBoard).
+    replace(Board, X, Y, A, NewBoard).
 
 % show a numbered list of possible moves
 show_moves([], _, _).
@@ -104,12 +118,11 @@ valid_move(Board, X, Y, NX, NY) :-
 % get the list of possible moves
 moves_list(Board, X, Y, ListOfMoves) :-
   findall([NX, NY], valid_move(Board, X, Y, NX, NY), ListOfMoves).
-
 % Make a move
 make_move('Player', GameState, PlayerS, NewGameState) :-
   format('~n~`*t ~a turn ~`*t~57|~n', [PlayerS]), 
   write('Attack or Move? (1 - Attack, 2 - Move): '), nl,
-  random(1, 2, Choice),
+  read_number(1, 2, Choice),
   Choice == 2,
   write('Choose a piece to move: '), nl,
   choose_piece(GameState, X, Y, PlayerS),
@@ -122,15 +135,13 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
   show_moves(ListOfMoves, 1, R),
   length(ListOfMoves, R),
   write('Choose a possible move: '), nl,
-  random(1, R, N),
+  read_number(1, R, N),
   nth1(N, ListOfMoves, [X1, Y1]),
   value_in_board(GameState, X1, Y1, Value1),
   format('- Selected spot: X: ~d, Y: ~w \n', [X1,Y1]),
   sleep(1),
   move(GameState, X1, Y1, Value, NewGame),
-  move(NewGame, X, Y, Value1, NewGameState),
-  check_winner(...).
-
+  move(NewGame, X, Y, Value1, NewGameState).
 
 can_attack(Board, X, Y, NX, NY) :-
   value_in_board(Board, X, Y, Value),
@@ -178,20 +189,17 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
   show_moves(ListOfMoves, 1, R),
   length(ListOfMoves, R),
   write('Choose a possible attack: '), nl,
-  random(1, R, N),
+  read_number(1, R, N),
   nth1(N, ListOfMoves, [X1, Y1]),
   format('- Selected spot: X: ~d, Y: ~w \n', [X1,Y1]),
 
   reduce_stack(GameState, X1, Y1, NewGameState1),
   value_in_board(NewGameState1, X1, Y1, Value1),
   write('Spot for attacked to go: '), nl,
-  random(0, 4, X2),
-  random(0, 6, Y2),
-  sleep(1),
+  read_input(X2, Y2),
   move(NewGameState1, X2, Y2, Value1, NewGameState2),               % victim retreats one place (ex: goes to [X1, Y2]), but we still need to choose the direction
   move(NewGameState2, X, Y, 0, NewGameState3),                      % empty the place where the attacker was [X, Y]
-  move(NewGameState3, X1, Y1, Value, NewGameState),                 % the place where the victim was [X1, Y1] will have now the attacker piece (Value)
-  check_winner(...).
+  move(NewGameState3, X1, Y1, Value, NewGameState).                 % the place where the victim was [X1, Y1] will have now the attacker piece (Value)
 
 % Turn for moving a piece
 turn(GameState, Player, PlayerS, NextPlayer):-
@@ -210,60 +218,7 @@ start_game :-
 
 
 
-# # used to check only in the homespaces
-# check_homespaces([], _, _).
-# check_homespaces([V|Rest], Player, N) :-
-#   NrPieces is N + V,
-#   check_homespaces(Rest, Player, NrPieces).
-
-# # used all over the grid
-# count_pieces([], _, _).
-# count_pieces([V|Rest], Player, N) :-
-#   NrPieces is N + V,
-#   count_pieces(Rest, Player, NrPieces).
-
-# ------------------------------------------
-# check_winner_hs(Board, CurrentPlayer, Player1, Player2, N1, N2, Winner) :-       % N as start as 0
-#   # try to put this on move function
-#   nth0(0, Board, List0),                          % check the first sublist (homespaces)
-#   nth0(6, Board, List6),                          % check the last sublist (homespaces)
-#   check_homespaces(List0, Player2, N2),           % count how many Player2 pieces are in the Player1 homespaces
-#   check_homespaces(List6, Player1, N1),           % count how many Player1 pieces are in the Player2 homespaces
-  
-#   (
-#     # Check for condition 1: Four or more pieces in Opponent homespaces
-#     (CurrentPlayer == Player1, N1 >= 4);
-#     (CurrentPlayer == Player2, N2 >= 4)
-#   ) -> Winner = CurrentPlayer.
-  
-
-# need to test these 2 functions
-check_winner_hs(Board, X, Y, Player, N, Winner) :- 
-  value_in_board(Board, X, Y, Value),
-  player_piece(Player, Value, _),
-  NextX is X + 1,                     % traverse the row corresponding to the homespaces
-  NrPieces is N + Value,
-  (
-    (NrPieces >= 4)
-  ) -> Winner = Player, !,            % we can stop now we found the winner
-  check_winner_hs(Board, NextX, Y, Player, NrPieces, Winner).
 
 
-check_winner_elim_pieces(Board, X, Y, Player, N, Winner) :-
-  value_in_board(Board, X, Y, Value),
-  player_piece(Player, Value, _),
-  (
-    # Check for condition 2: Six or more opponent pieces eliminated
-    # same as the number of pieces being <= 4
-    # (CurrentPlayer == Player1, length(CurrentPlayerPieces, N), N >= 6);
-    # (CurrentPlayer == Player2, length(OpponentPieces, N), N >= 6)
-  ) -> Winner = CurrentPlayer.
 
-
-check_winner(Board, X, Y, Player, N, Winner) :-
-  ( 
-    check_winner_hs(Board, X, Y, Player, N, Winner);
-    check_winner_elim_pieces(Board, X, Y, Player, N, Winner)
-  ),
-  menu_winner(10, '*', Winner).
 

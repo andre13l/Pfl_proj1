@@ -5,9 +5,9 @@ initial_state([
   [0,0,0,0,0],
   [0,0,0,0,0],
   [0,0,0,0,0],
-  [0,0,0,0,0],
-  [0,0,0,0,0],
-  [2,2,2,2,2]
+  [b,0,0,0,0],
+  [1,0,0,0,0],
+  [0,2,2,2,2]
 ]).
 
 print_board_middle_separator(1):-
@@ -57,6 +57,11 @@ print_header(P, X):-
   write('---+  *---'),
   print_board_separator(X).
 
+% Prints the score of the game
+print_score(Player1, Nrpieces1, Nrstacks1, Player2, Nrpieces2, Nrstacks2):-
+  nl, write(Player1), write(' has: '), write(Nrpieces1), write(' pieces and has gotten: '), write(Nrstacks1), write(' to enemy territory'), nl,
+  write(Player2), write(' has: '), write(Nrpieces2), write(' pieces and has gotten: '), write(Nrstacks2), write(' to enemy territory'), nl.
+  
 % Prints the board according to its state
 display_game(Board):- 
   nl, code(0, P),
@@ -64,6 +69,3 @@ display_game(Board):-
   print_matrix(Board, 0, 7),
   write('         ').
 
-start :-
-  initial_state(Board),
-  display_game(Board).
