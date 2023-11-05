@@ -157,15 +157,19 @@ can_attack(Board, X, Y, NX, NY) :-
 attack_list(Board, X, Y, ListOfMoves) :-
   findall([NX, NY], can_attack(Board, X, Y, NX, NY), ListOfMoves).
 
-# ta a dar merda no reduce_stack
-# é preciso escolher para que lado vai, eliminar a stack e definir quantas peças vao de sopa
-
 reduce_stack(GameState, X, Y, NewGameState) :-
   value_in_board(GameState, X, Y, Value),
   player_piece(Player, Value, Z),
   NewZ is Z + 1,
+  NewZ < 4, 
   player_piece(Player, NewValue, NewZ),
   replace(GameState, X, Y, NewValue, NewGameState).
+
+reduce_stack(GameState, X, Y, NewGameState) :-
+  value_in_board(GameState, X, Y, Value),
+  player_piece(Player, Value, Z),
+  Z == 3,
+  replace(GameState, X, Y, 0, NewGameState).
 
 attack(GameState, X, Y, X1, Y1, NewGameState):-
   reduce_stack(GameState, X1, Y1, NewGameState1),
@@ -186,13 +190,12 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
   read_number(1, R, N),
   nth1(N, ListOfMoves, [X1, Y1]),
   format('- Selected spot: X: ~d, Y: ~w \n', [X1,Y1]),
-  sleep(1),
+
   reduce_stack(GameState, X1, Y1, NewGameState1),
-  value_in_board(GameState1, X1, Y1, Value1),
-  Y2 is Y1 + 1,
-  EliminatedPieces is Value - Value1,
-  NewVictimValue is Value1 - EliminatedPieces,
-  move(NewGameState1, X1, Y2, NewVictimValue, NewGameState2),       % victim retreats one place (ex: goes to [X1, Y2]), but we still need to choose the direction
+  value_in_board(NewGameState1, X1, Y1, Value1),
+  write('Spot for attacked to go: '), nl,
+  read_input(X2, Y2),
+  move(NewGameState1, X2, Y2, Value1, NewGameState2),               % victim retreats one place (ex: goes to [X1, Y2]), but we still need to choose the direction
   move(NewGameState2, X, Y, 0, NewGameState3),                      % empty the place where the attacker was [X, Y]
   move(NewGameState3, X1, Y1, Value, NewGameState).                 % the place where the victim was [X1, Y1] will have now the attacker piece (Value)
 
