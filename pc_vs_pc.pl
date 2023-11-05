@@ -1,5 +1,5 @@
 :- consult('board.pl').
-
+:- use_module(library(random)).
 % Pieces codes for board representation
 code(0, 32). % ascii code for space
 code(1, 65). % A - Player 1 stack 1
@@ -40,23 +40,6 @@ player_piece('Player 1', d, 0).
 player_swap('Player 1', 'Player 2').
 player_swap('Player 2', 'Player 1').
 
-% read_column(-Column)
-% predicate to read column from user
-read_column(Column) :-
-  write('| Column (0-4) - '),
-  read_number(0, 4, Column).
-
-% read_row(-Row)
-% predicate to read row from user
-read_row(Row) :-
-  write('| Row (0-6) - '),
-  read_number(0, 6, Row).
-
-% Reads a Column and Row 
-read_input(X, Y) :-
-    read_row(Y),
-    read_column(X).
-
 % Return the value at the given position
 value_in_board(Board, X, Y, Value) :-
     nth0(Y, Board, Line),
@@ -75,7 +58,8 @@ player_in_board(Board, X, Y, PlayerS):-
 
 % Predicate to read input, checks if is available and return 
 choose_piece(Board, X, Y, Player) :-
-    read_input(X, Y),
+    random(0, 4, X),
+    random(0, 6, Y),
     value_in_board(Board, X, Y, Value),
     player_piece(Player, Value, _).    
 
@@ -122,7 +106,7 @@ moves_list(Board, X, Y, ListOfMoves) :-
 make_move('Player', GameState, PlayerS, NewGameState) :-
   format('~n~`*t ~a turn ~`*t~57|~n', [PlayerS]), 
   write('Attack or Move? (1 - Attack, 2 - Move): '), nl,
-  read_number(1, 2, Choice),
+  random(1, 2, Choice),
   Choice == 2,
   write('Choose a piece to move: '), nl,
   choose_piece(GameState, X, Y, PlayerS),
@@ -135,7 +119,7 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
   show_moves(ListOfMoves, 1, R),
   length(ListOfMoves, R),
   write('Choose a possible move: '), nl,
-  read_number(1, R, N),
+  random(1, R, N),
   nth1(N, ListOfMoves, [X1, Y1]),
   value_in_board(GameState, X1, Y1, Value1),
   format('- Selected spot: X: ~d, Y: ~w \n', [X1,Y1]),
@@ -189,14 +173,16 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
   show_moves(ListOfMoves, 1, R),
   length(ListOfMoves, R),
   write('Choose a possible attack: '), nl,
-  read_number(1, R, N),
+  random(1, R, N),
   nth1(N, ListOfMoves, [X1, Y1]),
   format('- Selected spot: X: ~d, Y: ~w \n', [X1,Y1]),
 
   reduce_stack(GameState, X1, Y1, NewGameState1),
   value_in_board(NewGameState1, X1, Y1, Value1),
   write('Spot for attacked to go: '), nl,
-  read_input(X2, Y2),
+  random(0, 4, X2),
+  random(0, 6, Y2),
+  sleep(1),
   move(NewGameState1, X2, Y2, Value1, NewGameState2),               % victim retreats one place (ex: goes to [X1, Y2]), but we still need to choose the direction
   move(NewGameState2, X, Y, 0, NewGameState3),                      % empty the place where the attacker was [X, Y]
   move(NewGameState3, X1, Y1, Value, NewGameState).                 % the place where the victim was [X1, Y1] will have now the attacker piece (Value)

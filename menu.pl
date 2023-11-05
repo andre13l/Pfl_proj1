@@ -70,7 +70,7 @@ menu_option(2):-
   start_game_pc,
   menu.
 % Computer vs Computer
-menu_option(2):-
+menu_option(3):-
   clear,
   start_game_pc,
   menu.
