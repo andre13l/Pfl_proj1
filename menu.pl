@@ -1,5 +1,5 @@
 :- consult('input.pl').
-:- consult('logic.pl').
+% :- consult('logic.pl').
 :-use_module(library(lists)).
 :-use_module(library(system)).
 :-use_module(library(random)).
@@ -136,6 +136,35 @@ menu_option(4):-
   menu_empty_format,
   menu_bottom_format,
   menu.
+
+
+% print_n(-N, +S)
+% prints the S symbol N times 
+print_n(0, S):- !.      
+print_n(N, S):- N > 0,
+                write(S),
+                N1 is N-1, 
+                print_n(N1, S).
+
+% print_space()
+% prints the space character
+print_space :- 
+  write(' ').
+
+% print_symbol(-N)
+print_symbol(N, S):- 
+  print_n(N, S).
+
+% menu_winner(-N, +S, Player)
+% prints the winnning message to the winner 
+menu_winner(N, S, Player) :- 
+  print_symbol(N, S),
+  print_space,
+  write('CONGRATULATIONS '), 
+  write(Player), 
+  write(', YOU WON!'),
+  print_space,
+  print_symbol(N, S).
 
 % menu/0
 % Prints the menu
