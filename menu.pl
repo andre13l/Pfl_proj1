@@ -1,5 +1,5 @@
 :- consult('input.pl').
-% :- consult('logic.pl').
+:- consult('logic.pl').
 :-use_module(library(lists)).
 :-use_module(library(system)).
 :-use_module(library(random)).
@@ -158,7 +158,7 @@ print_space :-
 % print_symbol(-N)
 print_symbol(N, S):- 
   print_n(N, S).
-
+  
 % menu_winner(-N, +S, Player)
 % prints the winnning message to the winner 
 menu_winner(N, S, Player) :- 
