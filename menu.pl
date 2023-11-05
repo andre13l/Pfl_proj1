@@ -64,14 +64,18 @@ menu_option(1):-
   clear,
   start_game,
   menu.
-% Player vs Computer, need to choose Board Size
+% Player vs Computer
 menu_option(2):-
-  banner('Player vs Computer'),
-  menu_board_size(Size),
-  pc_menu_1(Size),
-  clear, menu.
+  clear,
+  start_game_pc,
+  menu.
+% Computer vs Computer
+menu_option(2):-
+  clear,
+  start_game_pc,
+  menu.
 % Game Instructions
-menu_option(3):-
+menu_option(4):-
   clear,
   menu_header_format('INSTRUCTIONS'),
   menu_empty_format,
@@ -129,7 +133,7 @@ menu_option(3):-
   menu.
 
 % Information about the Project
-menu_option(4):-
+menu_option(5):-
   menu_bottom_format,
   menu_empty_format,
   menu_text_format('Made By Andre Leonor and Rui Carvalho'),
@@ -145,13 +149,14 @@ menu :-
     menu_empty_format,
     menu_option_format(1, 'Player vs Player'),
     menu_option_format(2, 'Player vs Computer'),
-    menu_option_format(3, 'Game Instructions'),
-    menu_option_format(4, 'Information about the project'),
+    menu_option_format(3, 'Computer vs Computer'),
+    menu_option_format(4, 'Game Instructions'),
+    menu_option_format(5, 'Information about the project'),
     menu_empty_format,
     menu_option_format(0, 'Exit'),
     menu_empty_format,
     menu_bottom_format,
 
-    write('| Choose an Option (0-4) - '),
-    read_number(0, 4, Option),
+    write('| Choose an Option (0-5) - '),
+    read_number(0, 5, Option),
     menu_option(Option).
