@@ -5,9 +5,9 @@ initial_state([
   [0,0,0,0,0],
   [0,0,0,0,0],
   [0,0,0,0,0],
-  [b,0,0,0,0],
-  [1,0,0,0,0],
-  [0,2,2,2,2]
+  [0,0,0,0,0],
+  [0,0,0,0,0],
+  [2,2,2,2,2]
 ]).
 
 print_board_middle_separator(1):-
@@ -23,6 +23,7 @@ print_matrix([L|T], N, X) :-
   print_line(L), nl,
   N < X - 1, write('---+  | - '), print_board_middle_separator(5),
   print_matrix(T, N1, X).
+  
 print_matrix(_, _, X):-
   write('---+  *---'),
   print_board_separator(5).

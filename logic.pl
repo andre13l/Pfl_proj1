@@ -194,7 +194,7 @@ make_move('Player', GameState, PlayerS, NewGameState, 1) :-
   read_input(X2, Y2),
   move(NewGameState1, X2, Y2, Value1, NewGameState2),               % victim retreats one place (ex: goes to [X1, Y2]), but we still need to choose the direction
   move(NewGameState2, X, Y, 0, NewGameState3),                      % empty the place where the attacker was [X, Y]
-  move(NewGameState3, X1, Y1, Value, NewGameState4),                 % the place where the victim was [X1, Y1] will have now the attacker piece (Value)
+  move(NewGameState3, X1, Y1, Value, NewGameState4),                % the place where the victim was [X1, Y1] will have now the attacker piece (Value)
   check_end_row(NewGameState4, X1, Y1, PlayerS, NewGameState, S).
 
 possible_separate_moves(Board, X, Y, NX, NY) :-
@@ -316,8 +316,7 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
   sleep(1),
   move(NewGameState1, X2, Y2, Value1, NewGameState2),               % victim retreats one place (ex: goes to [X1, Y2]), but we still need to choose the direction
   move(NewGameState2, X, Y, 0, NewGameState3),                      % empty the place where the attacker was [X, Y]
-  move(NewGameState3, X1, Y1, Value, NewGameState),                 % the place where the victim was [X1, Y1] will have now the attacker piece (Value)
-  % check_winner(...).
+  move(NewGameState3, X1, Y1, Value, NewGameState).                 % the place where the victim was [X1, Y1] will have now the attacker piece (Value)
 
 % Turn for moving a piece
 turn(GameState, Player, P1pieces, P1stacks, PlayerS, NextPlayer, P2pieces, P2stacks):-
@@ -325,73 +324,112 @@ turn(GameState, Player, P1pieces, P1stacks, PlayerS, NextPlayer, P2pieces, P2sta
   write('What do you want to do? (1 - Attack, 2 - Move, 3 - Separate Stack, 4 - Join Stacks): '), nl,
   read_number(1, 4, Choice),
   make_move(Player, GameState, PlayerS, NewGameState, Choice),
-  player_swap(PlayerS,EnemyS),
+  check_winner(NewGameState, P1pieces, P2pieces),
+  player_swap(PlayerS, EnemyS),
   clear, 
   display_game(NewGameState),
   print_score('Player 1', P1pieces, P1stacks, 'Player 2', P2pieces, P2stacks),
-  turn(NewGameState, NextPlayer, EnemyS, Player).
+  turn(NewGameState, NextPlayer, P1pieces, P1stacks, EnemyS, Player, P2pieces, P2stacks).
 
 % Start the game 
 start_game :-
   initial_state(Board),
   display_game(Board),
   print_score('Player 1', 10, 0, 'Player 2', 10, 0),
-  turn(Board, P1, 'Player 1', P2).
+  turn(Board, P1, 10, 0, P1, P2, 10, 0).
+
+% iterate all over the grid to count the number of pieces of each player
+count_N1_N2_board(Board, N1, N2) :-
+  count_N1_N2_board(Board, 0, 0, N1, N2).
+
+% line by line
+count_N1_N2_board([], N1, N2, N1, N2).
+count_N1_N2_board([Line|Rest], N1_temp, N2_temp, N1, N2) :-
+  count_N1_N2_line(Line, 0, 0, N1_line, N2_line),
+  N1_updated is N1_temp + N1_line,
+  N2_updated is N2_temp + N2_line,
+  count_N1_N2_board(Rest, N1_updated, N2_updated, N1, N2).
+
+% element by element
+count_N1_N2_line([], N1, N2, N1, N2).
+count_N1_N2_line([Piece|Rest], N1_temp, N2_temp, N1, N2) :-
+  count_N1_N2_elem(Piece, N1_piece, N2_piece),
+  N1_updated is N1_temp + N1_piece,
+  N2_updated is N2_temp + N2_piece,
+  count_N1_N2_line(Rest, N1_updated, N2_updated, N1, N2).
+
+homespaces(Board, N1_hs, N2_hs) :-
+  nth0(0, Board, List0),                      % Player1 homespaces
+  nth0(6, Board, List6),                      % Player2 homespaces
+  count_N1_N2_line(List0, 0, 0, 0, N2_hs),       % count how many Player2 pieces are in Player1 homespaces
+  count_N1_N2_line(List6, 0, 0, N1_hs, 0).       % count how many Player1 pieces are in Player2 homespaces
+
+count_N1_N2_elem(1, 1, 0).
+count_N1_N2_elem(2, 2, 0).
+count_N1_N2_elem(3, 3, 0).
+count_N1_N2_elem(4, 4, 0).
+count_N1_N2_elem(a, 0, 1).
+count_N1_N2_elem(b, 0, 2).
+count_N1_N2_elem(c, 0, 3).
+count_N1_N2_elem(d, 0, 4).
+count_N1_N2_elem([value], 0, 0).
+count_N1_N2_elem(_, 0, 0).
 
 
 
-% used to check only in the homespaces
-% check_homespaces([], _, _).
-% check_homespaces([V|Rest], Player, N) :-
-%   NrPieces is N + V,
-%   check_homespaces(Rest, Player, NrPieces).
+check_winner(Board, N1, N2) :-
+  count_N1_N2_board(Board, N1, N2),
+  game_over.
 
-% used all over the grid
-% count_pieces([], _, _).
-% count_pieces([V|Rest], Player, N) :-
-%   NrPieces is N + V,
-%   count_pieces(Rest, Player, NrPieces).
+game_over :- 
+  menu_winner(10, '*', Winner),
+  fail.
 
-% ------------------------------------------
-% check_winner_hs(Board, CurrentPlayer, Player1, Player2, N1, N2, Winner) :-       % N as start as 0
-%   try to put this on move function
-%   nth0(0, Board, List0),                          % check the first sublist (homespaces)
-%   nth0(6, Board, List6),                          % check the last sublist (homespaces)
-%   check_homespaces(List0, Player2, N2),           % count how many Player2 pieces are in the Player1 homespaces
-%   check_homespaces(List6, Player1, N1),           % count how many Player1 pieces are in the Player2 homespaces
-% 
-%   (
-%     Check for condition 1: Four or more pieces in Opponent homespaces
-%     (CurrentPlayer == Player1, N1 >= 4);
-%     (CurrentPlayer == Player2, N2 >= 4)
-%   ) -> Winner = CurrentPlayer.
+# % used to check only in the homespaces
+# % check_homespaces([], _, _).
+# % check_homespaces([V|Rest], Player, N) :-
+# %   NrPieces is N + V,
+# %   check_homespaces(Rest, Player, NrPieces).
 
+# % used all over the grid
+# % count_pieces([], _, _).
+# % count_pieces([V|Rest], Player, N) :-
+# %   NrPieces is N + V,
+# %   count_pieces(Rest, Player, NrPieces).
 
-% need to test these 2 functions
-check_winner_hs(Board, X, Y, Player, N, Winner) :- 
-  value_in_board(Board, X, Y, Value),
-  player_piece(Player, Value, _),
-  NextX is X + 1,                     % traverse the row corresponding to the homespaces
-  NrPieces is N + Value,
-  (
-    (NrPieces >= 4)
-  ) -> Winner = Player, !,            % we can stop now we found the winner
-  check_winner_hs(Board, NextX, Y, Player, NrPieces, Winner).
-
-check_winner_elim_pieces(Board, X, Y, Player, N, Winner) :-
-  value_in_board(Board, X, Y, Value),
-  player_piece(Player, Value, _),
-  (
-    % Check for condition 2: Six or more opponent pieces eliminated
-    % same as the number of pieces being <= 4
-    % (CurrentPlayer == Player1, length(CurrentPlayerPieces, N), N >= 6);
-    % (CurrentPlayer == Player2, length(OpponentPieces, N), N >= 6)
-  ) -> Winner = CurrentPlayer.
+# % ------------------------------------------
+# % check_winner_hs(Board, CurrentPlayer, Player1, Player2, N1, N2, Winner) :-       % N as start as 0
+# %   nth0(0, Board, List0),                          % check the first sublist (homespaces)
+# %   nth0(6, Board, List6),                          % check the last sublist (homespaces)
+# %   check_homespaces(List0, Player2, N2),           % count how many Player2 pieces are in the Player1 homespaces
+# %   check_homespaces(List6, Player1, N1),           % count how many Player1 pieces are in the Player2 homespaces
+# % 
+# %   (
+# %     Check for condition 1: Four or more pieces in Opponent homespaces
+# %     (CurrentPlayer == Player1, N1 >= 4);
+# %     (CurrentPlayer == Player2, N2 >= 4)
+# %   ) -> Winner = CurrentPlayer.
 
 
-check_winner(Board, X, Y, Player, N, Winner) :-
-  ( 
-    check_winner_hs(Board, X, Y, Player, N, Winner);
-    check_winner_elim_pieces(Board, X, Y, Player, N, Winner)
-  ),
-  menu_winner(10, '*', Winner).
+# % need to test these 2 functions
+# check_winner_hs(Board, X, Y, Player, N, Winner) :- 
+#   value_in_board(Board, X, Y, Value),
+#   player_piece(Player, Value, _),
+#   NextX is X + 1,                     % traverse the row corresponding to the homespaces
+#   NrPieces is N + Value,
+#   (
+#     (NrPieces >= 4)
+#   ) -> Winner = Player, !,            % we can stop now we found the winner
+#   check_winner_hs(Board, NextX, Y, Player, NrPieces, Winner).
+
+# check_winner_elim_pieces(Board, X, Y, Player, N, Winner) :-
+#   value_in_board(Board, X, Y, Value),
+#   player_piece(Player, Value, _),
+#   (
+#     % Check for condition 2: Six or more opponent pieces eliminated
+#     % same as the number of pieces being <= 4
+#     % (CurrentPlayer == Player1, length(CurrentPlayerPieces, N), N >= 6);
+#     % (CurrentPlayer == Player2, length(OpponentPieces, N), N >= 6)
+#   ) -> Winner = CurrentPlayer.
+
+
