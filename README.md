@@ -106,3 +106,5 @@ more of your pieces, your other pieces can move into that homespace later in the
 No more than 4 pieces are allowed to occupy a homespace.<br>
 All the rules of movement and stacking set out in rules [2] and [3]  apply to homespaces.
 
+#### Additional Information
+Work done by André Leonor (up201806860) and Rui Carvalho (up202108807) in the context of the course Functional Programming and Logic.
