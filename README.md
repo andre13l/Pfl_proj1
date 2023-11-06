@@ -1,5 +1,5 @@
 # STACKS_3
-up201806860 - André Moreira Leal Leonor - 50%
+up201806860 - André Moreira Leal Leonor - 50% <br>
 up202108807 - Rui Pedro Braga Carvalho - 50%
 
 ## Installation and Execution
