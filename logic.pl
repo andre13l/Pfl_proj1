@@ -1,4 +1,5 @@
 :- consult('board.pl').
+:- consult('menu.pl').
 :- use_module(library(random)).
 
 % Pieces codes for board representation
@@ -320,11 +321,11 @@ make_move('Player', GameState, PlayerS, NewGameState) :-
 
 % Turn for moving a piece
 turn(GameState, Player, P1pieces, P1stacks, PlayerS, NextPlayer, P2pieces, P2stacks):-
-  format('~n~`*t ~a turn ~`*t~57|~n', [PlayerS]), 
+  % format('~n~`*t ~a turn ~`*t~57|~n', [PlayerS]), 
   write('What do you want to do? (1 - Attack, 2 - Move, 3 - Separate Stack, 4 - Join Stacks): '), nl,
   read_number(1, 4, Choice),
   make_move(Player, GameState, PlayerS, NewGameState, Choice),
-  check_winner(NewGameState, P1pieces, P2pieces),
+  % check_winner(NewGameState, P1pieces, P2pieces),
   player_swap(PlayerS, EnemyS),
   clear, 
   display_game(NewGameState),
@@ -332,7 +333,7 @@ turn(GameState, Player, P1pieces, P1stacks, PlayerS, NextPlayer, P2pieces, P2sta
   turn(NewGameState, NextPlayer, P1pieces, P1stacks, EnemyS, Player, P2pieces, P2stacks).
 
 % Start the game 
-start_game :-
+play :-
   initial_state(Board),
   display_game(Board),
   print_score('Player 1', 10, 0, 'Player 2', 10, 0),
@@ -385,51 +386,52 @@ game_over :-
   menu_winner(10, '*', Winner),
   fail.
 
-# % used to check only in the homespaces
-# % check_homespaces([], _, _).
-# % check_homespaces([V|Rest], Player, N) :-
-# %   NrPieces is N + V,
-# %   check_homespaces(Rest, Player, NrPieces).
 
-# % used all over the grid
-# % count_pieces([], _, _).
-# % count_pieces([V|Rest], Player, N) :-
-# %   NrPieces is N + V,
-# %   count_pieces(Rest, Player, NrPieces).
+% used to check only in the homespaces
+% check_homespaces([], _, _).
+% check_homespaces([V|Rest], Player, N) :-
+%   NrPieces is N + V,
+%   check_homespaces(Rest, Player, NrPieces).
 
-# % ------------------------------------------
-# % check_winner_hs(Board, CurrentPlayer, Player1, Player2, N1, N2, Winner) :-       % N as start as 0
-# %   nth0(0, Board, List0),                          % check the first sublist (homespaces)
-# %   nth0(6, Board, List6),                          % check the last sublist (homespaces)
-# %   check_homespaces(List0, Player2, N2),           % count how many Player2 pieces are in the Player1 homespaces
-# %   check_homespaces(List6, Player1, N1),           % count how many Player1 pieces are in the Player2 homespaces
-# % 
-# %   (
-# %     Check for condition 1: Four or more pieces in Opponent homespaces
-# %     (CurrentPlayer == Player1, N1 >= 4);
-# %     (CurrentPlayer == Player2, N2 >= 4)
-# %   ) -> Winner = CurrentPlayer.
+% used all over the grid
+% count_pieces([], _, _).
+% count_pieces([V|Rest], Player, N) :-
+%   NrPieces is N + V,
+%   count_pieces(Rest, Player, NrPieces).
+
+% ------------------------------------------
+% check_winner_hs(Board, CurrentPlayer, Player1, Player2, N1, N2, Winner) :-       % N as start as 0
+%   nth0(0, Board, List0),                          % check the first sublist (homespaces)
+%   nth0(6, Board, List6),                          % check the last sublist (homespaces)
+%   check_homespaces(List0, Player2, N2),           % count how many Player2 pieces are in the Player1 homespaces
+%   check_homespaces(List6, Player1, N1),           % count how many Player1 pieces are in the Player2 homespaces
+% 
+%   (
+%     Check for condition 1: Four or more pieces in Opponent homespaces
+%     (CurrentPlayer == Player1, N1 >= 4);
+%     (CurrentPlayer == Player2, N2 >= 4)
+%   ) -> Winner = CurrentPlayer.
 
 
-# % need to test these 2 functions
-# check_winner_hs(Board, X, Y, Player, N, Winner) :- 
-#   value_in_board(Board, X, Y, Value),
-#   player_piece(Player, Value, _),
-#   NextX is X + 1,                     % traverse the row corresponding to the homespaces
-#   NrPieces is N + Value,
-#   (
-#     (NrPieces >= 4)
-#   ) -> Winner = Player, !,            % we can stop now we found the winner
-#   check_winner_hs(Board, NextX, Y, Player, NrPieces, Winner).
-
-# check_winner_elim_pieces(Board, X, Y, Player, N, Winner) :-
-#   value_in_board(Board, X, Y, Value),
-#   player_piece(Player, Value, _),
-#   (
-#     % Check for condition 2: Six or more opponent pieces eliminated
-#     % same as the number of pieces being <= 4
-#     % (CurrentPlayer == Player1, length(CurrentPlayerPieces, N), N >= 6);
-#     % (CurrentPlayer == Player2, length(OpponentPieces, N), N >= 6)
-#   ) -> Winner = CurrentPlayer.
+% need to test these 2 functions
+% check_winner_hs(Board, X, Y, Player, N, Winner) :- 
+%   value_in_board(Board, X, Y, Value),
+%   player_piece(Player, Value, _),
+%   NextX is X + 1,                     % traverse the row corresponding to the homespaces
+%   NrPieces is N + Value,
+%   (
+%     (NrPieces >= 4)
+%   ) -> Winner = Player, !,            % we can stop now we found the winner
+%   check_winner_hs(Board, NextX, Y, Player, NrPieces, Winner).
+% 
+% check_winner_elim_pieces(Board, X, Y, Player, N, Winner) :-
+%   value_in_board(Board, X, Y, Value),
+%   player_piece(Player, Value, _),
+%   (
+%     % Check for condition 2: Six or more opponent pieces eliminated
+%     % same as the number of pieces being <= 4
+%     % (CurrentPlayer == Player1, length(CurrentPlayerPieces, N), N >= 6);
+%     % (CurrentPlayer == Player2, length(OpponentPieces, N), N >= 6)
+%   ) -> Winner = CurrentPlayer.
 
 

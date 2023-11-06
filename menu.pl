@@ -1,5 +1,4 @@
 :- consult('input.pl').
-:- consult('logic.pl').
 :-use_module(library(lists)).
 :-use_module(library(system)).
 :-use_module(library(random)).
@@ -62,7 +61,7 @@ menu_option(0):-
 % Player vs PLayer
 menu_option(1):-
   clear,
-  start_game,
+  play,
   menu.
 % Player vs Computer
 menu_option(2):-
